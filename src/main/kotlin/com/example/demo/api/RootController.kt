@@ -40,6 +40,10 @@ class RootController(
             model.link(WebMvcLinkBuilder.linkTo(CheckoutController::class.java).withRel("dm:checkout"))
         }
 
+        if (shoppingService.hasPendingOrders()) {
+            model.link(WebMvcLinkBuilder.linkTo(OrderController::class.java).withRel("dm:order"))
+        }
+
         shoppingService.getProducts().forEach {
             val productLink = linkTo<ProductController> { show(it.id) }
             val product = Product(it.id, it.name)

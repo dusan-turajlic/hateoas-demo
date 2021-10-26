@@ -9,10 +9,7 @@ import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 const val CHECKOUT_PATH = "$API_PATH/checkout"
 
@@ -26,6 +23,7 @@ class CheckoutController(
     fun index(): HttpEntity<*> {
         val model = HalModelBuilder.halModel()
                 .link(WebMvcLinkBuilder.linkTo(RootController::class.java).withRel(IanaLinkRelations.INDEX))
+                .link(WebMvcLinkBuilder.linkTo(CheckoutController::class.java).withRel("dm:cancel"))
 
         model.embed(listOf("paypal", "creditcard").map {
             Payment(it).add(WebMvcLinkBuilder.linkTo(CheckoutController::class.java).slash(it).withSelfRel())
@@ -35,10 +33,16 @@ class CheckoutController(
         return ResponseEntity(model.build<Payment>(), HttpStatus.OK)
     }
 
+    @DeleteMapping()
+    fun destroy(): HttpEntity<*> {
+        shoppingService.clearCart()
+        return ResponseEntity("Checkout canceled", HttpStatus.OK)
+    }
+
     @PostMapping("/{payment}")
     fun store(): HttpEntity<*> {
         shoppingService.purchaseSuccess()
 
-        return ResponseEntity(null, HttpStatus.ACCEPTED)
+        return ResponseEntity("Payment Success", HttpStatus.ACCEPTED)
     }
 }

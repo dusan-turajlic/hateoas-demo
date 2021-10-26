@@ -18,6 +18,10 @@ class ShoppingService {
         return cartItems.isNotEmpty();
     }
 
+    fun hasPendingOrders(): Boolean {
+        return orders.isNotEmpty()
+    }
+
     fun getProducts(): List<ProductModel> {
         if (products.size == 0) {
             generateHardCodedProducts()
@@ -63,7 +67,11 @@ class ShoppingService {
         }
     }
 
-    fun getItemsInCart(): List<ProductModel> {
+    fun getOrderedItems(): MutableList<ProductModel> {
+        return orders
+    }
+
+    fun getItemsInCart(): MutableList<ProductModel> {
        return cartItems
     }
 }
