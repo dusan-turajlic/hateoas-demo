@@ -1,7 +1,7 @@
 package com.example.demo.api
 
 import com.example.demo.data.ShoppingService
-import com.example.demo.resources.Product
+import com.example.demo.resource.Product
 import com.fasterxml.jackson.annotation.JsonInclude
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -34,19 +34,17 @@ class RootController(
     fun index(): HttpEntity<RepresentationModel<IndexResource>> {
         val model = HalModelBuilder.halModel()
                 .link(WebMvcLinkBuilder.linkTo(RootController::class.java).withSelfRel())
-                .link(WebMvcLinkBuilder.linkTo(CartController::class.java).withRel("cart"))
+                .link(WebMvcLinkBuilder.linkTo(CartController::class.java).withRel("dm:cart"))
 
-        if (shoppingService.itemsInCart() > 0) {
-
+        if (shoppingService.hasItemsInCart()) {
+            model.link(WebMvcLinkBuilder.linkTo(CheckoutController::class.java).withRel("dm:checkout"))
         }
 
         shoppingService.getProducts().forEach {
             val productLink = linkTo<ProductController> { show(it.id) }
-            val uri = productLink.toUri();
             val product = Product(it.id, it.name)
 
-            // @TODO: Figure out why methodOn does not resolve correct url 🤔
-            product.add(Link.of("${uri.scheme}://${uri.host}:${uri.port}/products${uri.path}").withSelfRel())
+            product.add(productLink.withSelfRel())
             model.embed(product)
         }
 

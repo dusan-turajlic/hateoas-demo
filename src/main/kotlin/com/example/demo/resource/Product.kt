@@ -1,4 +1,4 @@
-package com.example.demo.resources
+package com.example.demo.resource
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import org.springframework.hateoas.RepresentationModel

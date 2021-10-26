@@ -1,10 +1,11 @@
 package com.example.demo.api
 
 import com.example.demo.data.ShoppingService
-import com.example.demo.models.ProductModel
-import com.example.demo.resources.Product
+import com.example.demo.model.ProductModel
+import com.example.demo.resource.Product
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.hateoas.IanaLinkRelations
+import org.springframework.hateoas.mediatype.hal.HalModelBuilder
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpStatus

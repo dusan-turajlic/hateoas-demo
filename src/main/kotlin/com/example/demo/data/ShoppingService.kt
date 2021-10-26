@@ -1,18 +1,21 @@
 package com.example.demo.data
 
-import com.example.demo.models.ProductModel
-import com.example.demo.resources.Product
+import com.example.demo.model.ProductModel
+import com.example.demo.resource.Product
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
+import org.springframework.web.server.ResponseStatusException
 
 class ShoppingService {
     private val logger: Logger = LoggerFactory.getLogger(ShoppingService::class.java)
 
-    private var cartItems: List<ProductModel> = mutableListOf<ProductModel>()
-    private var products: List<ProductModel> = mutableListOf<ProductModel>()
+    private var cartItems: MutableList<ProductModel> = mutableListOf()
+    private var products: MutableList<ProductModel> = mutableListOf()
+    private var orders: MutableList<ProductModel> = mutableListOf()
 
-    fun itemsInCart(): Int {
-        return cartItems.size;
+    fun hasItemsInCart(): Boolean {
+        return cartItems.isNotEmpty();
     }
 
     fun getProducts(): List<ProductModel> {
@@ -35,6 +38,15 @@ class ShoppingService {
         }
     }
 
+    fun purchaseSuccess() {
+        orders.addAll(cartItems)
+        clearCart()
+    }
+
+    fun clearCart() {
+        cartItems.clear()
+    }
+
     fun showProduct(id: String): ProductModel? {
         return products.find { it.id == id }
     }
@@ -46,5 +58,12 @@ class ShoppingService {
 
             logger.info("${model.name} has been added to cart")
         }
+        else {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Could not find item with id: ${product.id}")
+        }
+    }
+
+    fun getItemsInCart(): List<ProductModel> {
+       return cartItems
     }
 }
