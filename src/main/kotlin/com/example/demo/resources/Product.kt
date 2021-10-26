@@ -8,5 +8,5 @@ import org.springframework.hateoas.server.core.Relation
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class Product(
         var id: String,
-        var name: String
+        var name: String?
 ) : RepresentationModel<Product>()

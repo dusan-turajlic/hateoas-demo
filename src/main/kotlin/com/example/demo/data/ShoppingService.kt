@@ -1,8 +1,13 @@
 package com.example.demo.data
 
 import com.example.demo.models.ProductModel
+import com.example.demo.resources.Product
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class ShoppingService {
+    private val logger: Logger = LoggerFactory.getLogger(ShoppingService::class.java)
+
     private var cartItems: List<ProductModel> = mutableListOf<ProductModel>()
     private var products: List<ProductModel> = mutableListOf<ProductModel>()
 
@@ -20,11 +25,11 @@ class ShoppingService {
 
     private fun generateHardCodedProducts() {
         mutableListOf(
-                "Coffee Cup",
+                "Live Laugh Code Coffee Cup",
                 "Ironic T-Shirt",
                 "Laptop stickers",
                 "Mechanical Keyboard",
-                "Intro To Vim Book"
+                "Book: How to exit vim, the right way"
         ).forEach {
             products += ProductModel(name = it)
         }
@@ -32,5 +37,14 @@ class ShoppingService {
 
     fun showProduct(id: String): ProductModel? {
         return products.find { it.id == id }
+    }
+
+    fun addToCart(product: Product) {
+        val model = products.find { it.id == product.id }
+        if (model != null) {
+            cartItems += model
+
+            logger.info("${model.name} has been added to cart")
+        }
     }
 }
