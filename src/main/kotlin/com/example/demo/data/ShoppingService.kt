@@ -20,7 +20,7 @@ class ShoppingService {
     }
 
     fun orderIsStillPendingPayment(): Boolean {
-        return payed
+        return !payed
     }
 
     fun getProducts(): List<ProductModel> {
