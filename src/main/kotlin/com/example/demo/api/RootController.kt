@@ -7,12 +7,10 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.hateoas.IanaLinkRelations
-import org.springframework.hateoas.Link
 import org.springframework.hateoas.RepresentationModel
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
 import org.springframework.hateoas.server.core.Relation
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder
-import org.springframework.hateoas.server.mvc.linkTo
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -34,24 +32,17 @@ class RootController(
     fun index(): HttpEntity<RepresentationModel<IndexResource>> {
         val model = HalModelBuilder.halModel()
                 .link(WebMvcLinkBuilder.linkTo(RootController::class.java).withSelfRel())
-                .link(WebMvcLinkBuilder.linkTo(CartController::class.java).withRel("dm:cart"))
-
-        if (shoppingService.hasItemsInCart()) {
-            model.link(WebMvcLinkBuilder.linkTo(CheckoutController::class.java).withRel("dm:checkout"))
-        }
+                .link(WebMvcLinkBuilder.linkTo(ProductController::class.java).withRel("dm:product"))
+                .link(WebMvcLinkBuilder.linkTo(OrderController::class.java).withRel("dm:order"))
 
         if (shoppingService.hasPendingOrders()) {
-            model.link(WebMvcLinkBuilder.linkTo(OrderController::class.java).withRel("dm:order"))
+            model.embed(shoppingService.getOrderedItems().map { Product(it.id, it.name) })
+
+            if (shoppingService.orderIsStillPendingPayment()) {
+                model.link(WebMvcLinkBuilder.linkTo(OrderController::class.java).withRel("dm:cancel"))
+                model.link(WebMvcLinkBuilder.linkTo(PaymentController::class.java).withRel("payment"))
+            }
         }
-
-        shoppingService.getProducts().forEach {
-            val productLink = linkTo<ProductController> { show(it.id) }
-            val product = Product(it.id, it.name)
-
-            product.add(productLink.withSelfRel())
-            model.embed(product)
-        }
-
 
         return ResponseEntity(model.build(), HttpStatus.OK)
     }

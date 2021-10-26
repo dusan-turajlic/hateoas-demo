@@ -9,9 +9,7 @@ import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 const val ORDERS_PATH = "$API_PATH/orders"
 
@@ -33,5 +31,19 @@ class OrderController(
         }
 
         return ResponseEntity(model.build<Product>(), HttpStatus.OK)
+    }
+
+    @PostMapping(consumes = ["application/json"])
+    fun store(@RequestBody product: Product): HttpEntity<*> {
+        shoppingService.addToOrder(product)
+
+        return ResponseEntity("${product.id} added to order", HttpStatus.CREATED)
+    }
+
+    @DeleteMapping
+    fun destroy(): HttpEntity<*> {
+        shoppingService.clearOrder()
+
+        return ResponseEntity("Order canceled", HttpStatus.OK)
     }
 }

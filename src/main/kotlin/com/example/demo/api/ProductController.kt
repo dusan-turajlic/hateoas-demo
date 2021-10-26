@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.hateoas.IanaLinkRelations
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder
+import org.springframework.hateoas.server.mvc.linkTo
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -24,6 +25,22 @@ class ProductController(
         @Autowired
         private var shoppingService: ShoppingService
 ) {
+    @GetMapping()
+    fun index(): HttpEntity<*> {
+        val model = HalModelBuilder.halModel()
+                .link(WebMvcLinkBuilder.linkTo(RootController::class.java).withRel(IanaLinkRelations.INDEX))
+
+        shoppingService.getProducts().forEach {
+            val productLink = linkTo<ProductController> { show(it.id) }
+            val product = Product(it.id, it.name)
+
+            product.add(productLink.withSelfRel())
+            model.embed(product)
+        }
+
+        return ResponseEntity(model.build<Product>(), HttpStatus.OK)
+    }
+
     @GetMapping("/{id}")
     fun show(@PathVariable id: String?): HttpEntity<Product> {
         if (id != null) {

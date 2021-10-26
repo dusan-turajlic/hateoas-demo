@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Shopping demo</title>
+</head>
+<body>
+<div class="bg-white">
+    <div class="max-w-2xl mx-auto py-16 px-4 sm:py-24 sm:px-6 lg:max-w-7xl lg:px-8">
+        <h2 class="text-2xl font-extrabold tracking-tight text-gray-900">Products for developers</h2>
+        <div id="app" class="mt-6 grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8"></div>
+    </div>
+</div>
+<script>
+  (function () {
+    const API_URL = "http://localhost:8080/";
+    const LINK = "_links";
+    const EMBEDDED = "_embedded";
+
+    const PRODUCT_TEMPLATE = `
+        <div class="group relative">
+        <div class="w-full min-h-80 bg-gray-200 aspect-w-1 aspect-h-1 rounded-md overflow-hidden group-hover:opacity-75 lg:h-80 lg:aspect-none">
+            <img src="#IMAGE" class="w-full h-full object-center object-cover lg:w-full lg:h-full">
+        </div>
+        <div class="mt-4 flex justify-between">
+            <div>
+                <h3 class="text-sm text-gray-700">
+                    <a href="#">
+                        <span aria-hidden="true" class="absolute inset-0"></span>
+                        #TEXT
+                    </a>
+                </h3>
+            </div>
+            <p class="text-sm font-medium text-gray-900">Free</p>
+            </div>
+        </div>
+    `;
+
+    const productImage = [
+      'https://rlv.zcache.com/im_a_programmer_i_write_code_bad_speller_coffee_mug-r1a06c70078084bb5af9d46e3f3eedbe7_x7jg9_8byvr_704.webp',
+      'https://m.media-amazon.com/images/I/B1qmQK-r4OS._CLa%7C2140%2C2000%7C51etUVhPgaL.png%7C0%2C0%2C2140%2C2000%2B0.0%2C0.0%2C2140.0%2C2000.0_AC_UL1500_.png',
+      'https://m.media-amazon.com/images/I/61c7Sq3sEIL._SX450_.jpg',
+      'https://cdn.shopify.com/s/files/1/0059/0630/1017/products/Keychron-K2-hot-swappable-wireless-mechanical-keyboard-for-Mac-Windows-iOS-Gateron-switch-blue-with-type-C-RGB-white-backlight_1800x1800.jpg?v=1604561410',
+      'https://m.media-amazon.com/images/I/418ZNkwOBVL._SL500_.jpg'
+    ];
+
+    const LinkRelations = {
+      PRODUCT: "dm:product"
+    }
+
+    const app = document.querySelector('#app');
+
+    function _handleFetchResponse(promise) {
+      return promise.then(res => res.json())
+        .catch((e) => console.warn(e));
+    }
+
+    function _stringToHTML(str) {
+      let element = document.createElement('div').innerHTML = str;
+      return element.firstChild
+    }
+
+    /** @param {String} href */
+    function get(href) {
+      return _handleFetchResponse(fetch(href));
+    }
+
+    /**
+     * @param {String} href
+     * @param {Object} data
+     **/
+    function post(href, data) {
+      return _handleFetchResponse(fetch(href, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      }));
+    }
+
+    function del(href) {
+      return _handleFetchResponse(fetch(href, {method: 'DELETE'}))
+    }
+
+    function load() {
+      get(API_URL).then(async (response) => {
+        if (LINK in response) {
+          if (Object.keys(response[LINK]).includes(LinkRelations.PRODUCT)) {
+            const productRepresentation = await get(response[LINK][LinkRelations.PRODUCT]?.href);
+
+            if (EMBEDDED in productRepresentation && Object.keys(productRepresentation[EMBEDDED]).includes(LinkRelations.PRODUCT)) {
+              const products = productRepresentation[EMBEDDED][LinkRelations.PRODUCT];
+              products.forEach((item, index) => {
+                let itemStr = PRODUCT_TEMPLATE.replace('#IMAGE', productImage[index]);
+                console.log(itemStr);
+                let element = _stringToHTML(itemStr.replace('#TEXT', item.name));
+
+                app.append(element);
+              })
+            }
+          }
+        }
+      })
+    }
+
+    load();
+  })()
+</script>
+</body>
+</html>

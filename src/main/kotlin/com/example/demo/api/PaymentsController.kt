@@ -1,7 +1,7 @@
 package com.example.demo.api
 
 import com.example.demo.data.ShoppingService
-import com.example.demo.resource.Product
+import com.example.demo.resource.Payment
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.hateoas.IanaLinkRelations
 import org.springframework.hateoas.mediatype.hal.HalModelBuilder
@@ -11,11 +11,11 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
-const val CART_PATH = "$API_PATH/cart"
+const val CHECKOUT_PATH = "$API_PATH/payment"
 
 @RestController
-@RequestMapping(CART_PATH)
-class CartController(
+@RequestMapping(value = [CHECKOUT_PATH])
+class PaymentController(
         @Autowired
         private var shoppingService: ShoppingService
 ) {
@@ -24,19 +24,16 @@ class CartController(
         val model = HalModelBuilder.halModel()
                 .link(WebMvcLinkBuilder.linkTo(RootController::class.java).withRel(IanaLinkRelations.INDEX))
 
-        shoppingService.getItemsInCart().map {
-            Product(it.id, it.name)
-        }.forEach {
-            model.embed(it)
-        }
+        model.embed(listOf("paypal", "creditcard").map {
+            Payment(it).add(WebMvcLinkBuilder.linkTo(PaymentController::class.java).slash(it).withSelfRel())
+        })
 
-        return ResponseEntity(model.build<Product>(), HttpStatus.OK)
+
+        return ResponseEntity(model.build<Payment>(), HttpStatus.OK)
     }
 
-    @PostMapping(consumes = ["application/json"])
-    fun store(@RequestBody product: Product): HttpEntity<*> {
-        shoppingService.addToCart(product)
-
-        return index()
+    @PostMapping("/{payment}")
+    fun store(): HttpEntity<*> {
+        return ResponseEntity("Payment Success", HttpStatus.ACCEPTED)
     }
 }

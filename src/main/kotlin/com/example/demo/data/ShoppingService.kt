@@ -10,16 +10,17 @@ import org.springframework.web.server.ResponseStatusException
 class ShoppingService {
     private val logger: Logger = LoggerFactory.getLogger(ShoppingService::class.java)
 
-    private var cartItems: MutableList<ProductModel> = mutableListOf()
+    private var payed = false;
+
     private var products: MutableList<ProductModel> = mutableListOf()
     private var orders: MutableList<ProductModel> = mutableListOf()
 
-    fun hasItemsInCart(): Boolean {
-        return cartItems.isNotEmpty();
-    }
-
     fun hasPendingOrders(): Boolean {
         return orders.isNotEmpty()
+    }
+
+    fun orderIsStillPendingPayment(): Boolean {
+        return payed
     }
 
     fun getProducts(): List<ProductModel> {
@@ -42,23 +43,14 @@ class ShoppingService {
         }
     }
 
-    fun purchaseSuccess() {
-        orders.addAll(cartItems)
-        clearCart()
-    }
-
-    fun clearCart() {
-        cartItems.clear()
-    }
-
     fun showProduct(id: String): ProductModel? {
         return products.find { it.id == id }
     }
 
-    fun addToCart(product: Product) {
+    fun addToOrder(product: Product) {
         val model = products.find { it.id == product.id }
         if (model != null) {
-            cartItems += model
+            orders += model
 
             logger.info("${model.name} has been added to cart")
         }
@@ -67,11 +59,16 @@ class ShoppingService {
         }
     }
 
+    fun clearOrder() {
+        payed = false
+        orders.clear()
+    }
+
     fun getOrderedItems(): MutableList<ProductModel> {
         return orders
     }
 
-    fun getItemsInCart(): MutableList<ProductModel> {
-       return cartItems
+    fun paymentSuccess() {
+        payed = true
     }
 }
