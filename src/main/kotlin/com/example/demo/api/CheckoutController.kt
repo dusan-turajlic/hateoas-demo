@@ -33,8 +33,8 @@ class CheckoutController(
         return ResponseEntity(model.build<Payment>(), HttpStatus.OK)
     }
 
-    @DeleteMapping()
-    fun destroy(): HttpEntity<*> {
+    @PostMapping()
+    fun destroy(): HttpEntity<String> {
         shoppingService.clearCart()
         return ResponseEntity("Checkout canceled", HttpStatus.OK)
     }
