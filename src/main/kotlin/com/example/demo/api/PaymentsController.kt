@@ -34,6 +34,8 @@ class PaymentController(
 
     @PostMapping("/{payment}")
     fun store(): HttpEntity<*> {
+        shoppingService.paymentSuccess()
+
         return ResponseEntity("Payment Success", HttpStatus.ACCEPTED)
     }
 }
