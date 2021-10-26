@@ -9,13 +9,15 @@ import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 
-const val CART_PATH = "$API_PATH/cart"
+const val ORDERS_PATH = "$API_PATH/orders"
 
 @RestController
-@RequestMapping(CART_PATH)
-class CartController(
+@RequestMapping(value = [ORDERS_PATH])
+class OrderController(
         @Autowired
         private var shoppingService: ShoppingService
 ) {
@@ -24,19 +26,12 @@ class CartController(
         val model = HalModelBuilder.halModel()
                 .link(WebMvcLinkBuilder.linkTo(RootController::class.java).withRel(IanaLinkRelations.INDEX))
 
-        shoppingService.getItemsInCart().map {
+        shoppingService.getOrderedItems().map {
             Product(it.id, it.name)
         }.forEach {
             model.embed(it)
         }
 
         return ResponseEntity(model.build<Product>(), HttpStatus.OK)
-    }
-
-    @PostMapping(consumes = ["application/json"])
-    fun store(@RequestBody product: Product): HttpEntity<*> {
-        shoppingService.addToCart(product)
-
-        return index()
     }
 }
