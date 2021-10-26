@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import org.springframework.hateoas.RepresentationModel
 import org.springframework.hateoas.server.core.Relation
 
-@Relation(collectionRelation = "product")
+@Relation(collectionRelation = "dm:product")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class Product(
         var id: String,

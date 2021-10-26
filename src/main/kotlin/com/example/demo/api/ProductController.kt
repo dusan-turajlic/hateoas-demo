@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 
 @RestController("/products")
-class ProductsController(
+class ProductController(
         @Autowired
         private var shoppingService: ShoppingService
 ) {

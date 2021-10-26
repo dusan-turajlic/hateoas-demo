@@ -31,7 +31,7 @@ class RootController(
         }
 
         shoppingService.getProducts().forEach {
-            val productLink = linkTo<ProductsController> { show(it.id) }
+            val productLink = linkTo<ProductController> { show(it.id) }
             val product = Product(it.id, it.name)
 
             product.add(productLink.withSelfRel())
