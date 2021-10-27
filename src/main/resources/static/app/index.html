@@ -3,12 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <title>Shopping demo</title>
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body>
 <div class="bg-white">
+    <header class="relative">
+        <nav aria-label="Top">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="border-b border-gray-200">
+                    <div class="h-16 flex items-center justify-between">
+                        <div class="flex-1 flex items-center justify-end">
+                            <div id="nav" class="flex items-center lg:ml-8">
+                                <div id="cancel" class="flex items-center lg:ml-8"></div>
+                                <div id="payments" class="flex items-center lg:ml-8"></div>
+                                <div class="flow-root">
+                                    <a id="cart" href="#" class="group -m-2 p-2 flex items-center">
+                                        <svg class="flex-shrink-0 h-6 w-6 text-gray-400 group-hover:text-gray-500"
+                                             xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                             stroke="currentColor" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                        </svg>
+                                        <span class="ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800"></span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
     <div class="max-w-2xl mx-auto py-16 px-4 sm:py-24 sm:px-6 lg:max-w-7xl lg:px-8">
         <h2 class="text-2xl font-extrabold tracking-tight text-gray-900">Products for developers</h2>
-        <div id="app" class="mt-6 grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8"></div>
+        <div id="products"
+             class="mt-6 grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8"></div>
     </div>
 </div>
 <script>
@@ -19,7 +48,7 @@
 
     const PRODUCT_TEMPLATE = `
         <div class="group relative">
-        <div class="w-full min-h-80 bg-gray-200 aspect-w-1 aspect-h-1 rounded-md overflow-hidden group-hover:opacity-75 lg:h-80 lg:aspect-none">
+        <div class="w-full min-h-80 bg-gray-200 aspect-w-1 aspect-h-1 rounded-md overflow-hidden lg:h-80 lg:aspect-none">
             <img src="#IMAGE" class="w-full h-full object-center object-cover lg:w-full lg:h-full">
         </div>
         <div class="mt-4 flex justify-between">
@@ -30,34 +59,62 @@
                         #TEXT
                     </a>
                 </h3>
+                <p class="mt-1 text-sm text-gray-500">
+                    <button type="button" class="group-hover:opacity-75 inline-flex items-center px-2.5 py-2 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <svg class="flex-shrink-0 h-4 w-4 mr-2 text-gray-400 group-hover:text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                        </svg>
+                       Add To Cart
+                    </button>
+                </p>
             </div>
             <p class="text-sm font-medium text-gray-900">Free</p>
             </div>
         </div>
     `;
 
+    const NAV_BUTTON_TEMPLATE = `
+        <div class="flow-root mr-3">
+            <button type="button" class="group-hover:opacity-75 inline-flex items-center px-2.5 py-2 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                #TEXT
+            </button>
+        </div>
+    `;
+
     const productImage = [
       'https://rlv.zcache.com/im_a_programmer_i_write_code_bad_speller_coffee_mug-r1a06c70078084bb5af9d46e3f3eedbe7_x7jg9_8byvr_704.webp',
-      'https://m.media-amazon.com/images/I/B1qmQK-r4OS._CLa%7C2140%2C2000%7C51etUVhPgaL.png%7C0%2C0%2C2140%2C2000%2B0.0%2C0.0%2C2140.0%2C2000.0_AC_UL1500_.png',
-      'https://m.media-amazon.com/images/I/61c7Sq3sEIL._SX450_.jpg',
-      'https://cdn.shopify.com/s/files/1/0059/0630/1017/products/Keychron-K2-hot-swappable-wireless-mechanical-keyboard-for-Mac-Windows-iOS-Gateron-switch-blue-with-type-C-RGB-white-backlight_1800x1800.jpg?v=1604561410',
+      'https://ctl.s6img.com/society6/img/_hSx8Hmf-NH4V4NVSaskPiQ0ec0/w_700/tshirts/men/greybg/black/~artwork,bg_FFFFFFFF,fw_3300,fh_5100,fy_66,iw_3300,ih_5100/s6-original-art-uploads/society6/uploads/misc/f96052fb7b9444beb916911d69eb2446/~~/solace-ironic98689-tshirts.jpg',
+      'https://d3ccuprjuqkp1j.cloudfront.net/ProductLandingPages/FeaturedImages/LaptopStickers_2_720x720_20200504154753_0.jpg',
+      'https://cdn.mos.cms.futurecdn.net/nTwmhFaHkNYbZEkLiLEtmY.jpg',
       'https://m.media-amazon.com/images/I/418ZNkwOBVL._SL500_.jpg'
     ];
 
     const LinkRelations = {
-      PRODUCT: "dm:product"
+      PRODUCT: "dm:product",
+      ORDER: "dm:order",
+      PAYMENT: "payment",
+      CANCEL: "dm:cancel"
     }
 
-    const app = document.querySelector('#app');
+    const app = document.querySelector('#products');
+    const cart = document.querySelector('#cart');
+    const paymentContainer = document.querySelector('#payments');
+    const cancelContainer = document.querySelector('#cancel');
 
     function _handleFetchResponse(promise) {
-      return promise.then(res => res.json())
+      return promise.then(res => {
+        if (['application/json', 'application/hal+json'].includes(res.headers.get('Content-Type'))) {
+          return res.json();
+        }
+        return res;
+      })
         .catch((e) => console.warn(e));
     }
 
     function _stringToHTML(str) {
-      let element = document.createElement('div').innerHTML = str;
-      return element.firstChild
+      let element = document.createElement('div');
+      element.innerHTML = str;
+      return element.children[0];
     }
 
     /** @param {String} href */
@@ -91,13 +148,70 @@
 
             if (EMBEDDED in productRepresentation && Object.keys(productRepresentation[EMBEDDED]).includes(LinkRelations.PRODUCT)) {
               const products = productRepresentation[EMBEDDED][LinkRelations.PRODUCT];
-              products.forEach((item, index) => {
-                let itemStr = PRODUCT_TEMPLATE.replace('#IMAGE', productImage[index]);
-                console.log(itemStr);
-                let element = _stringToHTML(itemStr.replace('#TEXT', item.name));
+              app.innerHTML = '';
+              app.append(
+                ...products.map(({id, name}, index) => {
+                  let itemStr = PRODUCT_TEMPLATE.replace('#IMAGE', productImage[index]);
+                  let element = _stringToHTML(itemStr.replace('#TEXT', name));
 
-                app.append(element);
+                  if (Object.keys(response[LINK]).includes(LinkRelations.ORDER)) {
+                    element.querySelector('button').onclick = () => {
+                      post(response[LINK][LinkRelations.ORDER]?.href, {id}).then(() => {
+                        load();
+                      });
+                    };
+                  }
+
+                  return element;
+                })
+              )
+            }
+          }
+
+          if (Object.keys(response[LINK]).includes(LinkRelations.PAYMENT)) {
+            get(response[LINK][LinkRelations.PAYMENT]?.href).then((res) => {
+              if (EMBEDDED in res && Object.keys(res[EMBEDDED]).includes(LinkRelations.PAYMENT) ) {
+                const payments = res[EMBEDDED][LinkRelations.PAYMENT];
+                paymentContainer.innerHTML = '';
+                payments.forEach((item) => {
+                  const payment = _stringToHTML(NAV_BUTTON_TEMPLATE.replace('#TEXT', item.name));
+                  payment.querySelector('button').addEventListener('click', () => {
+                    post(item[LINK]?.self?.href, {}).then(() => {
+                      load();
+                    });
+                  })
+
+                  paymentContainer.prepend(payment);
+                })
+              }
+            })
+          }
+          else {
+            paymentContainer.innerHTML = '';
+          }
+
+          if (Object.keys(response[LINK]).includes(LinkRelations.CANCEL)) {
+            cancelContainer.innerHTML = '';
+            const cancel = _stringToHTML(NAV_BUTTON_TEMPLATE.replace('#TEXT', 'Cancel'))
+            cancel.querySelector('button').addEventListener('click', () => {
+              del(response[LINK][LinkRelations.CANCEL]?.href).then(() => {
+                load();
               })
+            });
+
+            cancelContainer.append(cancel);
+          }
+          else {
+            cancelContainer.innerHTML = '';
+          }
+
+          if (EMBEDDED in response) {
+            if (Object.keys(response[EMBEDDED]).includes(LinkRelations.PRODUCT) && Object.keys(response[LINK]).includes(LinkRelations.PAYMENT) ) {
+              const orders = response[EMBEDDED][LinkRelations.PRODUCT];
+              cart.querySelector('span').innerHTML = orders.length;
+            }
+            else {
+              cart.querySelector('span').innerHTML = '';
             }
           }
         }
