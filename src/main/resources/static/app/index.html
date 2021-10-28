@@ -18,12 +18,7 @@
                                 <div id="payments" class="flex items-center lg:ml-8"></div>
                                 <div class="flow-root">
                                     <a id="cart" href="#" class="group -m-2 p-2 flex items-center">
-                                        <svg class="flex-shrink-0 h-6 w-6 text-gray-400 group-hover:text-gray-500"
-                                             xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                             stroke="currentColor" aria-hidden="true">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
-                                        </svg>
+                                        <div id="icon"></div>
                                         <span class="ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800"></span>
                                     </a>
                                 </div>
@@ -61,8 +56,11 @@
                 </h3>
                 <p class="mt-1 text-sm text-gray-500">
                     <button type="button" class="group-hover:opacity-75 inline-flex items-center px-2.5 py-2 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        <svg class="flex-shrink-0 h-4 w-4 mr-2 text-gray-400 group-hover:text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                        <svg class="flex-shrink-0 h-6 w-6 text-gray-400 group-hover:text-gray-500"
+                             xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                             stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
                         </svg>
                        Add To Cart
                     </button>
@@ -100,6 +98,7 @@
     const cart = document.querySelector('#cart');
     const paymentContainer = document.querySelector('#payments');
     const cancelContainer = document.querySelector('#cancel');
+    const shoppingIcon = document.querySelector('#icon');
 
     function _handleFetchResponse(promise) {
       return promise.then(res => {
@@ -142,6 +141,15 @@
 
     function load() {
       get(API_URL).then(async (response) => {
+        shoppingIcon.innerHTML = `
+            <svg class="flex-shrink-0 h-6 w-6 text-gray-400 group-hover:text-gray-500"
+                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                 stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+            </svg>
+        `;
+
         if (LINK in response) {
           if (Object.keys(response[LINK]).includes(LinkRelations.PRODUCT)) {
             const productRepresentation = await get(response[LINK][LinkRelations.PRODUCT]?.href);
@@ -170,7 +178,7 @@
 
           if (Object.keys(response[LINK]).includes(LinkRelations.PAYMENT)) {
             get(response[LINK][LinkRelations.PAYMENT]?.href).then((res) => {
-              if (EMBEDDED in res && Object.keys(res[EMBEDDED]).includes(LinkRelations.PAYMENT) ) {
+              if (EMBEDDED in res && Object.keys(res[EMBEDDED]).includes(LinkRelations.PAYMENT)) {
                 const payments = res[EMBEDDED][LinkRelations.PAYMENT];
                 paymentContainer.innerHTML = '';
                 payments.forEach((item) => {
@@ -185,8 +193,7 @@
                 })
               }
             })
-          }
-          else {
+          } else {
             paymentContainer.innerHTML = '';
           }
 
@@ -200,19 +207,23 @@
             });
 
             cancelContainer.append(cancel);
-          }
-          else {
+          } else {
             cancelContainer.innerHTML = '';
           }
 
           if (EMBEDDED in response) {
-            if (Object.keys(response[EMBEDDED]).includes(LinkRelations.PRODUCT) && Object.keys(response[LINK]).includes(LinkRelations.PAYMENT) ) {
+            if (Object.keys(response[EMBEDDED]).includes(LinkRelations.PRODUCT) && Object.keys(response[LINK]).includes(LinkRelations.PAYMENT)) {
               const orders = response[EMBEDDED][LinkRelations.PRODUCT];
               cart.querySelector('span').innerHTML = orders.length;
+            } else {
+              shoppingIcon.innerHTML = `
+                    <svg class="flex-shrink-0 h-6 w-6 mr-2 text-gray-400 group-hover:text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+             `;
             }
-            else {
-              cart.querySelector('span').innerHTML = '';
-            }
+          } else {
+            cart.querySelector('span').innerHTML = '';
           }
         }
       })

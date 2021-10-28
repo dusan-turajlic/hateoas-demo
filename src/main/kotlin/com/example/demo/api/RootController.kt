@@ -38,8 +38,8 @@ class RootController(
         if (shoppingService.hasPendingOrders()) {
             model.embed(shoppingService.getOrderedItems().map { Product(it.id, it.name) })
 
+            model.link(WebMvcLinkBuilder.linkTo(OrderController::class.java).withRel("dm:cancel"))
             if (shoppingService.orderIsStillPendingPayment()) {
-                model.link(WebMvcLinkBuilder.linkTo(OrderController::class.java).withRel("dm:cancel"))
                 model.link(WebMvcLinkBuilder.linkTo(PaymentController::class.java).withRel("payment"))
             }
         }
